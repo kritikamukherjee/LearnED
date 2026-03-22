@@ -1124,12 +1124,15 @@
 </div><!-- /app -->
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  // ── Everything runs after page fully loads ────
+  window.onload = function() {
+
   // ── Page Navigation ───────────────────────────
-  function showPage(pageId) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  window.showPage = function(pageId) {
+    document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
     var target = document.getElementById('page-' + pageId);
     if (target) target.classList.add('active');
-    document.querySelectorAll('.nav-item').forEach(n => {
+    document.querySelectorAll('.nav-item').forEach(function(n) {
       n.classList.remove('active');
       if (n.getAttribute('data-page') === pageId) n.classList.add('active');
     });
@@ -1138,12 +1141,12 @@
   // Attach clicks to all nav items
   document.querySelectorAll('.nav-item[data-page]').forEach(function(item) {
     item.addEventListener('click', function() {
-      showPage(this.getAttribute('data-page'));
+      window.showPage(this.getAttribute('data-page'));
     });
   });
 
   // ── Sidebar Toggle ────────────────────────────
-  function toggleSidebar() {
+  window.toggleSidebar = function toggleSidebar() {
     const s = document.getElementById('sidebar');
     const m = document.getElementById('main-content');
     s.classList.toggle('collapsed');
@@ -1332,7 +1335,16 @@
   })();
 
   // ── Quiz Timer ────────────────────────────────
-  let quizSecs = 120;
-  const timerEl = document.getElementById('quiz-time');
-  setInterval(() => {
-    if (quizSecs
+  var quizSecs = 120;
+  var timerEl = document.getElementById('quiz-time');
+  setInterval(function() {
+    if (quizSecs > 0) quizSecs--;
+    var m = String(Math.floor(quizSecs / 60)).padStart(2, '0');
+    var s = String(quizSecs % 60).padStart(2, '0');
+    if (timerEl) timerEl.textContent = m + ':' + s;
+  }, 1000);
+
+  }; // end window.onload
+</script>
+</body>
+</html>
