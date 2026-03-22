@@ -646,40 +646,40 @@
 
     <nav class="sidebar-nav">
       <div class="nav-section nav-label">MAIN</div>
-      <a class="nav-item active" onclick="showPage('home',this)">
+      <div class="nav-item active" data-page="home">
         <i class="fas fa-home"></i><span class="nav-label">Home</span>
-      </a>
-      <a class="nav-item" onclick="showPage('courses',this)">
+      </div>
+      <div class="nav-item" data-page="courses">
         <i class="fas fa-book-open"></i><span class="nav-label">Courses</span>
-      </a>
-      <a class="nav-item" onclick="showPage('mylearning',this)">
+      </div>
+      <div class="nav-item" data-page="mylearning">
         <i class="fas fa-graduation-cap"></i><span class="nav-label">My Learning</span>
         <span class="nav-badge">3</span>
-      </a>
+      </div>
 
       <div class="nav-section nav-label" style="margin-top:8px;">TOOLS</div>
-      <a class="nav-item" onclick="showPage('ai',this)">
+      <div class="nav-item" data-page="ai">
         <i class="fas fa-robot"></i><span class="nav-label">AI Assistant</span>
-      </a>
-      <a class="nav-item" onclick="showPage('quiz',this)">
+      </div>
+      <div class="nav-item" data-page="quiz">
         <i class="fas fa-puzzle-piece"></i><span class="nav-label">Quiz Zone</span>
-      </a>
+      </div>
 
       <div class="nav-section nav-label" style="margin-top:8px;">OPPORTUNITIES</div>
-      <a class="nav-item" onclick="showPage('sponsors',this)">
+      <div class="nav-item" data-page="sponsors">
         <i class="fas fa-handshake"></i><span class="nav-label">Sponsors</span>
-      </a>
-      <a class="nav-item" onclick="showPage('scholarships',this)">
+      </div>
+      <div class="nav-item" data-page="scholarships">
         <i class="fas fa-award"></i><span class="nav-label">Scholarships</span>
-      </a>
+      </div>
 
       <div class="nav-section nav-label" style="margin-top:8px;">ACCOUNT</div>
-      <a class="nav-item" onclick="showPage('profile',this)">
+      <div class="nav-item" data-page="profile">
         <i class="fas fa-user-circle"></i><span class="nav-label">Profile</span>
-      </a>
-      <a class="nav-item" onclick="showPage('profile',this)">
+      </div>
+      <div class="nav-item" data-page="profile">
         <i class="fas fa-cog"></i><span class="nav-label">Settings</span>
-      </a>
+      </div>
     </nav>
 
     <div class="sidebar-sponsor">
@@ -716,10 +716,10 @@
             <h1>Education for Everyone.<br>Free. Powered by Sponsors.</h1>
             <p>Unlock high-quality courses in AI, Programming, Business, Languages and more — completely free, thanks to our sponsor network.</p>
             <div class="hero-btns">
-              <button class="btn btn-white" onclick="showPage('courses', document.querySelector('[onclick*=courses]'))">
+              <button class="btn btn-white" onclick="showPage('courses')">
                 <i class="fas fa-rocket"></i> Browse Courses
               </button>
-              <button class="btn btn-outline-white" onclick="showPage('scholarships', document.querySelectorAll('.nav-item')[7])">
+              <button class="btn btn-outline-white" onclick="showPage('scholarships')">
                 <i class="fas fa-award"></i> View Scholarships
               </button>
             </div>
@@ -749,7 +749,7 @@
           <!-- Featured Courses -->
           <div class="section-header">
             <div class="section-title">🔥 Featured Courses</div>
-            <a class="section-link" onclick="showPage('courses', document.querySelectorAll('.nav-item')[1])">View all →</a>
+            <a class="section-link" onclick="showPage('courses')">View all →</a>
           </div>
           <div class="course-grid">
             <div class="course-card">
@@ -1125,12 +1125,22 @@
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
   // ── Page Navigation ───────────────────────────
-  function showPage(pageId, el) {
+  function showPage(pageId) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById('page-' + pageId).classList.add('active');
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    if (el && el.classList) el.classList.add('active');
+    var target = document.getElementById('page-' + pageId);
+    if (target) target.classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => {
+      n.classList.remove('active');
+      if (n.getAttribute('data-page') === pageId) n.classList.add('active');
+    });
   }
+
+  // Attach clicks to all nav items
+  document.querySelectorAll('.nav-item[data-page]').forEach(function(item) {
+    item.addEventListener('click', function() {
+      showPage(this.getAttribute('data-page'));
+    });
+  });
 
   // ── Sidebar Toggle ────────────────────────────
   function toggleSidebar() {
