@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LearnED — Learn Free, Grow Unlimited</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<style>
+  :root {
+    --primary: #3B5BDB;
+    --primary-light: #748FFC;
+    --primary-dark: #2340C9;
+    --accent: #845EF7;
+    --accent2: #22B8CF;
+    --bg: #F8F9FF;
+    --surface: #FFFFFF;
+    --surface2: #EEF2FF;
+    --text: #1A1D3A;
+    --text-muted: #6B7299;
+    --border: #E0E6FF;
+    --sidebar-w: 240px;
+    --sidebar-collapsed: 68px;
+    --sponsor-w: 220px;
+    --topbar-h: 0px;
+    --radius: 14px;
+    --shadow: 0 2px 16px rgba(59,91,219,0.10);
+    --shadow-lg: 0 8px 40px rgba(59,91,219,0.18);
+    --gold: #F59F00;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+  }
+
+  /* ─── LAYOUT ─────────────────────────────────── */
+  #app { display: flex; min-height: 100vh; }
+
+  /* ─── SIDEBAR ────────────────────────────────── */
+  #sidebar {
+    width: var(--sidebar-w);
+    min-height: 100vh;
+    background: var(--surface);
+    border-right: 1.5px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0;
+    z-index: 100;
+    transition: width 0.3s cubic-bezier(.4,0,.2,1);
+    box-shadow: 2px 0 20px rgba(59,91,219,0.06);
+  }
+  #sidebar.collapsed { width: var(--sidebar-collapsed); }
+  #sidebar.collapsed .nav-label,
+  #sidebar.collapsed .sidebar-logo-text,
+  #sidebar.collapsed .sidebar-tagline,
+  #sidebar.collapsed .sponsor-label,
+  #sidebar.collapsed .sponsor-name { display: none; }
+
+  .sidebar-header {
+    padding: 22px 18px 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1.5px solid var(--border);
+  }
+  .sidebar-logo-icon {
+    width: 38px; height: 38px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Sora', sans-serif;
+    font-weight: 800; color: white; font-size: 16px;
+    flex-shrink: 0;
+  }
+  .sidebar-logo-text {
+    font-family: 'Sora', sans-serif;
+    font-weight: 800; font-size: 20px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .sidebar-tagline { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
+
+  .sidebar-toggle {
+    margin-left: auto; background: none; border: none; cursor: pointer;
+    color: var(--text-muted); font-size: 18px; padding: 4px;
+    transition: color 0.2s;
+  }
+  .sidebar-toggle:hover { color: var(--primary); }
+
+  .sidebar-nav {
+    flex: 1; padding: 14px 10px;
+    display: flex; flex-direction: column; gap: 3px;
+    overflow-y: auto;
+  }
+
+  .nav-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 12px; border-radius: 10px;
+    cursor: pointer; transition: all 0.2s;
+    position: relative; user-select: none;
+    text-decoration: none; color: var(--text-muted);
+    font-size: 14px; font-weight: 500;
+    white-space: nowrap;
+  }
+  .nav-item:hover { background: var(--surface2); color: var(--primary); }
+  .nav-item.active {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    color: white;
+    box-shadow: 0 4px 14px rgba(59,91,219,0.35);
+  }
+  .nav-item i { width: 20px; text-align: center; font-size: 16px; flex-shrink: 0; }
+  .nav-badge {
+    margin-left: auto;
+    background: #FA5252;
+    color: white; font-size: 10px; font-weight: 700;
+    border-radius: 20px; padding: 1px 6px; min-width: 18px; text-align: center;
+  }
+  .nav-section {
+    font-size: 10px; font-weight: 700; letter-spacing: 1px;
+    color: var(--text-muted); padding: 10px 12px 4px;
+    text-transform: uppercase;
+  }
+  #sidebar.collapsed .nav-section { display: none; }
+
+  .sidebar-sponsor {
+    padding: 14px 12px;
+    border-top: 1.5px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .sponsor-dot {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--gold), #FF922B);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .sponsor-label { font-size: 10px; color: var(--text-muted); }
+  .sponsor-name { font-size: 12px; font-weight: 700; color: var(--text); }
+
+  /* ─── MAIN CONTENT ────────────────────────────── */
+  #main-content {
+    margin-left: var(--sidebar-w);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    transition: margin-left 0.3s cubic-bezier(.4,0,.2,1);
+  }
+  #main-content.expanded { margin-left: var(--sidebar-collapsed); }
+
+  /* ─── TOPBAR ──────────────────────────────────── */
+  #topbar {
+    height: 60px; background: var(--surface);
+    border-bottom: 1.5px solid var(--border);
+    display: flex; align-items: center; gap: 14px;
+    padding: 0 24px;
+    position: sticky; top: 0; z-index: 50;
+  }
+  .topbar-search {
+    flex: 1; max-width: 480px;
+    display: flex; align-items: center;
+    background: var(--bg); border: 1.5px solid var(--border);
+    border-radius: 30px; padding: 0 16px; gap: 10px;
+    transition: border-color 0.2s;
+  }
+  .topbar-search:focus-within { border-color: var(--primary); }
+  .topbar-search i { color: var(--text-muted); font-size: 14px; }
+  .topbar-search input {
+    border: none; background: none; outline: none;
+    font-size: 14px; color: var(--text); flex: 1; height: 38px;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .topbar-actions { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+  .topbar-btn {
+    width: 38px; height: 38px; border-radius: 10px;
+    border: 1.5px solid var(--border); background: var(--surface);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    color: var(--text-muted); font-size: 16px; transition: all 0.2s;
+  }
+  .topbar-btn:hover { border-color: var(--primary); color: var(--primary); }
+  .avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-size: 14px; cursor: pointer;
+    font-family: 'Sora', sans-serif;
+  }
+
+  /* ─── CONTENT + SPONSOR ───────────────────────── */
+  #content-area {
+    display: flex; flex: 1; gap: 0;
+  }
+  #page-content { flex: 1; padding: 28px 24px; min-width: 0; }
+  #sponsor-panel {
+    width: var(--sponsor-w);
+    padding: 24px 16px;
+    flex-shrink: 0;
+    border-left: 1.5px solid var(--border);
+    display: flex; flex-direction: column; gap: 16px;
+  }
+
+  /* ─── PAGES ───────────────────────────────────── */
+  .page { display: none; animation: fadeIn 0.35s ease; }
+  .page.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ─── HERO ────────────────────────────────────── */
+  .hero {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 60%, var(--accent2) 100%);
+    border-radius: 20px;
+    padding: 44px 40px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 30px;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: -40px; right: -40px;
+    width: 220px; height: 220px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 50%;
+  }
+  .hero::after {
+    content: '';
+    position: absolute; bottom: -60px; right: 80px;
+    width: 160px; height: 160px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 50%;
+  }
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 20px; padding: 5px 12px;
+    font-size: 12px; font-weight: 600; margin-bottom: 14px;
+  }
+  .hero h1 {
+    font-family: 'Sora', sans-serif;
+    font-size: 32px; font-weight: 800; line-height: 1.2;
+    margin-bottom: 12px;
+  }
+  .hero p { font-size: 15px; opacity: 0.88; max-width: 480px; line-height: 1.6; margin-bottom: 24px; }
+  .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 22px; border-radius: 30px;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    border: none; transition: all 0.2s; text-decoration: none;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .btn-white { background: white; color: var(--primary); }
+  .btn-white:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+  .btn-outline-white { background: rgba(255,255,255,0.15); color: white; border: 1.5px solid rgba(255,255,255,0.4); }
+  .btn-outline-white:hover { background: rgba(255,255,255,0.25); }
+  .btn-primary { background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; box-shadow: 0 4px 14px rgba(59,91,219,0.35); }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(59,91,219,0.45); }
+
+  .hero-stats {
+    display: flex; gap: 28px; margin-top: 24px; flex-wrap: wrap;
+  }
+  .hero-stat { }
+  .hero-stat-num { font-family: 'Sora', sans-serif; font-size: 22px; font-weight: 800; }
+  .hero-stat-label { font-size: 12px; opacity: 0.75; }
+
+  /* ─── SECTION TITLE ───────────────────────────── */
+  .section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .section-title {
+    font-family: 'Sora', sans-serif; font-size: 18px; font-weight: 700;
+  }
+  .section-link { font-size: 13px; color: var(--primary); font-weight: 600; cursor: pointer; text-decoration: none; }
+  .section-link:hover { text-decoration: underline; }
+
+  /* ─── CATEGORY CHIPS ──────────────────────────── */
+  .category-row {
+    display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px;
+  }
+  .cat-chip {
+    display: flex; align-items: center; gap: 7px;
+    padding: 8px 16px; border-radius: 30px;
+    border: 1.5px solid var(--border); background: var(--surface);
+    font-size: 13px; font-weight: 500; cursor: pointer;
+    transition: all 0.2s; color: var(--text-muted);
+  }
+  .cat-chip:hover, .cat-chip.active { border-color: var(--primary); color: var(--primary); background: var(--surface2); }
+  .cat-chip i { font-size: 14px; }
+
+  /* ─── COURSE GRID ─────────────────────────────── */
+  .course-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 18px;
+    margin-bottom: 30px;
+  }
+  .course-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1.5px solid var(--border);
+    transition: all 0.25s;
+    cursor: pointer;
+  }
+  .course-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--primary-light); }
+  .course-thumb {
+    height: 130px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 44px; position: relative;
+  }
+  .course-badge {
+    position: absolute; top: 10px; right: 10px;
+    background: var(--gold); color: white;
+    font-size: 10px; font-weight: 700; border-radius: 6px; padding: 2px 8px;
+  }
+  .course-badge.free { background: #40C057; }
+  .course-body { padding: 14px; }
+  .course-cat {
+    font-size: 11px; font-weight: 600;
+    color: var(--primary); text-transform: uppercase;
+    letter-spacing: 0.5px; margin-bottom: 4px;
+  }
+  .course-title {
+    font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 700;
+    margin-bottom: 6px; line-height: 1.35;
+  }
+  .course-teacher { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+  .course-meta { display: flex; align-items: center; gap: 12px; font-size: 12px; color: var(--text-muted); }
+  .course-rating { color: var(--gold); font-weight: 600; }
+  .course-sponsor-tag {
+    margin-top: 10px; display: flex; align-items: center; gap: 6px;
+    font-size: 11px; color: var(--accent); font-weight: 600;
+  }
+
+  /* ─── SPONSOR PANEL ───────────────────────────── */
+  .sponsor-panel-title {
+    font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 700;
+    color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px;
+    margin-bottom: 8px;
+  }
+  .sponsor-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 12px; padding: 14px;
+    text-align: center; transition: all 0.2s; cursor: pointer;
+  }
+  .sponsor-card:hover { border-color: var(--primary); box-shadow: var(--shadow); }
+  .sponsor-logo-big { font-size: 30px; margin-bottom: 8px; }
+  .sponsor-card-name { font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+  .sponsor-card-desc { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
+  .sponsor-ad {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    border-radius: 12px; padding: 16px; color: white; text-align: center;
+  }
+  .sponsor-ad-label { font-size: 10px; opacity: 0.7; margin-bottom: 4px; }
+  .sponsor-ad-title { font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 800; margin-bottom: 4px; }
+  .sponsor-ad-sub { font-size: 11px; opacity: 0.8; margin-bottom: 12px; }
+  .btn-ad { background: white; color: var(--primary); font-size: 12px; font-weight: 700; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; width: 100%; }
+  .scholarship-card {
+    background: linear-gradient(135deg, #FFF9DB, #FFF3BF);
+    border: 1.5px solid #FFE066; border-radius: 12px; padding: 14px;
+  }
+  .scholarship-card-title { font-family: 'Sora', sans-serif; font-size: 12px; font-weight: 700; margin-bottom: 3px; display: flex; align-items: center; gap: 6px; }
+  .scholarship-card-desc { font-size: 11px; color: #7C6000; line-height: 1.4; margin-bottom: 8px; }
+  .btn-scholarship { background: var(--gold); color: white; font-size: 11px; font-weight: 700; border: none; padding: 7px 14px; border-radius: 20px; cursor: pointer; width: 100%; }
+
+  /* ─── MY LEARNING PAGE ───────────────────────── */
+  .progress-card {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: var(--radius); padding: 20px; margin-bottom: 18px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .progress-thumb { font-size: 36px; width: 60px; text-align: center; flex-shrink: 0; }
+  .progress-info { flex: 1; }
+  .progress-course-name { font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .progress-teacher { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
+  .progress-bar-bg { background: var(--surface2); border-radius: 10px; height: 7px; width: 100%; }
+  .progress-bar-fill { height: 7px; border-radius: 10px; background: linear-gradient(90deg, var(--primary), var(--accent)); }
+  .progress-pct { font-size: 12px; color: var(--primary); font-weight: 700; margin-top: 4px; }
+  .progress-actions { display: flex; flex-direction: column; gap: 6px; }
+
+  /* ─── CERTIFICATES ────────────────────────────── */
+  .cert-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px;
+  }
+  .cert-card {
+    background: linear-gradient(135deg, #EEF2FF 0%, #F3F0FF 100%);
+    border: 1.5px solid var(--primary-light); border-radius: var(--radius); padding: 22px;
+    text-align: center; position: relative; overflow: hidden;
+  }
+  .cert-card::before { content: '🎓'; position: absolute; top: -10px; right: -10px; font-size: 70px; opacity: 0.08; }
+  .cert-icon { font-size: 36px; margin-bottom: 10px; }
+  .cert-course { font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .cert-date { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; }
+  .btn-cert { background: var(--primary); color: white; font-size: 12px; font-weight: 700; border: none; padding: 8px 18px; border-radius: 20px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+
+  /* ─── AI PAGE ─────────────────────────────────── */
+  .ai-header {
+    background: linear-gradient(135deg, #1A1D3A 0%, #2E1B69 100%);
+    border-radius: 20px; padding: 32px; color: white; margin-bottom: 24px;
+    display: flex; align-items: center; gap: 24px;
+  }
+  .ai-icon-big {
+    width: 64px; height: 64px; border-radius: 18px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 30px; flex-shrink: 0;
+  }
+  .ai-header h2 { font-family: 'Sora', sans-serif; font-size: 24px; font-weight: 800; margin-bottom: 6px; }
+  .ai-header p { opacity: 0.75; font-size: 14px; }
+  .ai-chips { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+  .ai-chip {
+    padding: 9px 16px; background: var(--surface2); border: 1.5px solid var(--border);
+    border-radius: 20px; font-size: 13px; font-weight: 500; cursor: pointer;
+    transition: all 0.2s; color: var(--primary);
+  }
+  .ai-chip:hover { background: var(--primary); color: white; border-color: var(--primary); }
+  .ai-chat {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: var(--radius); overflow: hidden;
+  }
+  .ai-messages { height: 320px; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+  .ai-msg { display: flex; gap: 10px; }
+  .ai-msg.user { flex-direction: row-reverse; }
+  .ai-msg-avatar {
+    width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .ai-msg-avatar.bot { background: linear-gradient(135deg, var(--accent), var(--accent2)); }
+  .ai-msg-avatar.human { background: linear-gradient(135deg, var(--primary), var(--primary-light)); }
+  .ai-msg-bubble {
+    max-width: 75%; padding: 12px 16px; border-radius: 14px;
+    font-size: 14px; line-height: 1.55;
+  }
+  .ai-msg.bot .ai-msg-bubble { background: var(--surface2); border-radius: 4px 14px 14px 14px; }
+  .ai-msg.user .ai-msg-bubble { background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; border-radius: 14px 4px 14px 14px; }
+  .ai-input-row {
+    display: flex; gap: 10px; padding: 14px; border-top: 1.5px solid var(--border);
+    background: var(--bg);
+  }
+  .ai-input {
+    flex: 1; border: 1.5px solid var(--border); border-radius: 24px;
+    padding: 10px 18px; font-size: 14px; outline: none; font-family: 'DM Sans', sans-serif;
+    background: var(--surface); color: var(--text); transition: border-color 0.2s;
+  }
+  .ai-input:focus { border-color: var(--primary); }
+  .ai-send {
+    width: 42px; height: 42px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 16px; flex-shrink: 0; transition: transform 0.2s;
+  }
+  .ai-send:hover { transform: scale(1.08); }
+
+  /* ─── QUIZ PAGE ──────────────────────────────── */
+  .quiz-card {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: var(--radius); padding: 28px; max-width: 680px;
+  }
+  .quiz-num { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
+  .quiz-question { font-family: 'Sora', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 24px; }
+  .quiz-options { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+  .quiz-option {
+    padding: 14px 18px; border: 2px solid var(--border); border-radius: 12px;
+    cursor: pointer; transition: all 0.2s; font-size: 14px; font-weight: 500;
+  }
+  .quiz-option:hover { border-color: var(--primary); background: var(--surface2); }
+  .quiz-option.correct { border-color: #40C057; background: #EBFBEE; color: #2F9E44; }
+  .quiz-option.wrong { border-color: #FA5252; background: #FFF5F5; color: #C92A2A; }
+  .quiz-timer {
+    display: flex; align-items: center; gap: 8px; font-size: 16px;
+    font-weight: 700; color: var(--primary); margin-bottom: 16px;
+  }
+  .leaderboard {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: var(--radius); overflow: hidden; margin-top: 24px;
+  }
+  .leaderboard-header { padding: 16px 20px; border-bottom: 1.5px solid var(--border); font-family: 'Sora', sans-serif; font-weight: 700; }
+  .lb-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px 20px; border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+  .lb-row:last-child { border-bottom: none; }
+  .lb-rank { font-family: 'Sora', sans-serif; font-weight: 800; width: 24px; color: var(--text-muted); }
+  .lb-rank.gold { color: var(--gold); }
+  .lb-rank.silver { color: #ADB5BD; }
+  .lb-rank.bronze { color: #CD7F32; }
+  .lb-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .lb-name { flex: 1; font-weight: 500; }
+  .lb-score { font-weight: 700; color: var(--primary); }
+
+  /* ─── SCHOLARSHIP PAGE ─────────────────────────── */
+  .scholarship-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px;
+  }
+  .schol-card {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: var(--radius); padding: 22px; transition: all 0.2s; cursor: pointer;
+  }
+  .schol-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); border-color: var(--gold); }
+  .schol-logo { font-size: 36px; margin-bottom: 12px; }
+  .schol-title { font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .schol-org { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
+  .schol-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .schol-tag { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .schol-tag.funded { background: #EBFBEE; color: #2F9E44; }
+  .schol-tag.deadline { background: #FFF5F5; color: #C92A2A; }
+  .schol-tag.type { background: var(--surface2); color: var(--primary); }
+
+  /* ─── SPONSORS PAGE ───────────────────────────── */
+  .sponsor-grid-main {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px;
+  }
+  .sponsor-main-card {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: var(--radius); padding: 24px; text-align: center;
+    transition: all 0.2s; cursor: pointer;
+  }
+  .sponsor-main-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+  .sponsor-main-logo { font-size: 48px; margin-bottom: 12px; }
+  .sponsor-main-name { font-family: 'Sora', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .sponsor-main-type { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; }
+  .sponsor-main-badge {
+    display: inline-block; padding: 4px 12px; border-radius: 20px;
+    font-size: 11px; font-weight: 700;
+  }
+  .sponsor-main-badge.premium { background: linear-gradient(135deg, var(--gold), #FF922B); color: white; }
+  .sponsor-main-badge.partner { background: var(--surface2); color: var(--primary); }
+
+  /* ─── PROFILE PAGE ────────────────────────────── */
+  .profile-header {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    border-radius: 20px; padding: 32px; color: white; margin-bottom: 24px;
+    display: flex; align-items: center; gap: 24px;
+  }
+  .profile-avatar-big {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: rgba(255,255,255,0.25); border: 3px solid rgba(255,255,255,0.5);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Sora', sans-serif; font-size: 28px; font-weight: 800;
+    flex-shrink: 0;
+  }
+  .profile-name { font-family: 'Sora', sans-serif; font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+  .profile-sub { opacity: 0.8; font-size: 14px; margin-bottom: 14px; }
+  .profile-stats { display: flex; gap: 24px; }
+  .profile-stat-num { font-family: 'Sora', sans-serif; font-size: 20px; font-weight: 800; }
+  .profile-stat-label { font-size: 12px; opacity: 0.75; }
+  .settings-section { margin-bottom: 24px; }
+  .settings-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px; background: var(--surface);
+    border: 1.5px solid var(--border); border-radius: 12px; margin-bottom: 8px;
+  }
+  .settings-label { font-weight: 500; font-size: 14px; }
+  .settings-sublabel { font-size: 12px; color: var(--text-muted); }
+  .toggle {
+    width: 42px; height: 24px; border-radius: 12px;
+    background: var(--border); cursor: pointer; position: relative;
+    transition: background 0.2s;
+  }
+  .toggle.on { background: var(--primary); }
+  .toggle::after {
+    content: ''; position: absolute; top: 3px; left: 3px;
+    width: 18px; height: 18px; border-radius: 50%; background: white;
+    transition: transform 0.2s;
+  }
+  .toggle.on::after { transform: translateX(18px); }
+
+  /* ─── COURSES PAGE FILTERS ────────────────────── */
+  .filter-bar {
+    display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; align-items: center;
+  }
+  .filter-select {
+    border: 1.5px solid var(--border); border-radius: 10px; padding: 8px 14px;
+    font-size: 13px; background: var(--surface); outline: none; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; color: var(--text);
+  }
+
+  /* ─── FOOTER ──────────────────────────────────── */
+  .footer {
+    background: var(--text); color: rgba(255,255,255,0.7);
+    padding: 28px 24px; margin-top: 24px;
+    border-radius: 16px 16px 0 0;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: gap;
+    font-size: 13px;
+  }
+  .footer-logo { font-family: 'Sora', sans-serif; font-weight: 800; color: white; font-size: 18px; margin-bottom: 4px; }
+
+  /* ─── UTILS ───────────────────────────────────── */
+  .stat-row {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 28px;
+  }
+  .stat-box {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: var(--radius); padding: 18px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .stat-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; font-size: 20px;
+    flex-shrink: 0;
+  }
+  .stat-num { font-family: 'Sora', sans-serif; font-size: 22px; font-weight: 800; }
+  .stat-label { font-size: 12px; color: var(--text-muted); }
+
+  .page-title {
+    font-family: 'Sora', sans-serif; font-size: 22px; font-weight: 800;
+    margin-bottom: 6px;
+  }
+  .page-sub { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; }
+
+  @media (max-width: 1100px) {
+    #sponsor-panel { display: none; }
+  }
+  @media (max-width: 700px) {
+    #sidebar { width: var(--sidebar-collapsed); }
+    #main-content { margin-left: var(--sidebar-collapsed); }
+    .sidebar-logo-text, .nav-label, .sidebar-tagline, .sponsor-label, .sponsor-name { display: none; }
+    .hero h1 { font-size: 22px; }
+    .stat-row { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ─── SIDEBAR ─────────────────────────────── -->
+  <aside id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo-icon">L</div>
+      <div>
+        <div class="sidebar-logo-text">LearnED</div>
+        <div class="sidebar-tagline">Learn Free, Grow Unlimited</div>
+      </div>
+      <button class="sidebar-toggle" onclick="toggleSidebar()">
+        <i class="fa fa-bars"></i>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section nav-label">MAIN</div>
+      <a class="nav-item active" onclick="showPage('home',this)">
+        <i class="fas fa-home"></i><span class="nav-label">Home</span>
+      </a>
+      <a class="nav-item" onclick="showPage('courses',this)">
+        <i class="fas fa-book-open"></i><span class="nav-label">Courses</span>
+      </a>
+      <a class="nav-item" onclick="showPage('mylearning',this)">
+        <i class="fas fa-graduation-cap"></i><span class="nav-label">My Learning</span>
+        <span class="nav-badge">3</span>
+      </a>
+
+      <div class="nav-section nav-label" style="margin-top:8px;">TOOLS</div>
+      <a class="nav-item" onclick="showPage('ai',this)">
+        <i class="fas fa-robot"></i><span class="nav-label">AI Assistant</span>
+      </a>
+      <a class="nav-item" onclick="showPage('quiz',this)">
+        <i class="fas fa-puzzle-piece"></i><span class="nav-label">Quiz Zone</span>
+      </a>
+
+      <div class="nav-section nav-label" style="margin-top:8px;">OPPORTUNITIES</div>
+      <a class="nav-item" onclick="showPage('sponsors',this)">
+        <i class="fas fa-handshake"></i><span class="nav-label">Sponsors</span>
+      </a>
+      <a class="nav-item" onclick="showPage('scholarships',this)">
+        <i class="fas fa-award"></i><span class="nav-label">Scholarships</span>
+      </a>
+
+      <div class="nav-section nav-label" style="margin-top:8px;">ACCOUNT</div>
+      <a class="nav-item" onclick="showPage('profile',this)">
+        <i class="fas fa-user-circle"></i><span class="nav-label">Profile</span>
+      </a>
+      <a class="nav-item" onclick="showPage('profile',this)">
+        <i class="fas fa-cog"></i><span class="nav-label">Settings</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-sponsor">
+      <div class="sponsor-dot">🏫</div>
+      <div>
+        <div class="sponsor-label">Featured Sponsor</div>
+        <div class="sponsor-name nav-label">Oxford Online</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ─── MAIN CONTENT ─────────────────────────── -->
+  <div id="main-content">
+    <!-- Topbar -->
+    <header id="topbar">
+      <div class="topbar-search">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Search courses, topics, instructors...">
+      </div>
+      <div class="topbar-actions">
+        <button class="topbar-btn"><i class="fas fa-bell"></i></button>
+        <button class="topbar-btn"><i class="fas fa-moon"></i></button>
+        <div class="avatar">A</div>
+      </div>
+    </header>
+
+    <div id="content-area">
+      <div id="page-content">
+
+        <!-- ════════ HOME PAGE ════════ -->
+        <div class="page active" id="page-home">
+          <div class="hero">
+            <div class="hero-tag">✨ Sponsored Learning Platform</div>
+            <h1>Education for Everyone.<br>Free. Powered by Sponsors.</h1>
+            <p>Unlock high-quality courses in AI, Programming, Business, Languages and more — completely free, thanks to our sponsor network.</p>
+            <div class="hero-btns">
+              <button class="btn btn-white" onclick="showPage('courses', document.querySelector('[onclick*=courses]'))">
+                <i class="fas fa-rocket"></i> Browse Courses
+              </button>
+              <button class="btn btn-outline-white" onclick="showPage('scholarships', document.querySelectorAll('.nav-item')[7])">
+                <i class="fas fa-award"></i> View Scholarships
+              </button>
+            </div>
+            <div class="hero-stats">
+              <div class="hero-stat"><div class="hero-stat-num">12,400+</div><div class="hero-stat-label">Students</div></div>
+              <div class="hero-stat"><div class="hero-stat-num">340+</div><div class="hero-stat-label">Free Courses</div></div>
+              <div class="hero-stat"><div class="hero-stat-num">58</div><div class="hero-stat-label">Sponsors</div></div>
+              <div class="hero-stat"><div class="hero-stat-num">94%</div><div class="hero-stat-label">Satisfaction</div></div>
+            </div>
+          </div>
+
+          <!-- Categories -->
+          <div class="section-header">
+            <div class="section-title">Browse Categories</div>
+          </div>
+          <div class="category-row">
+            <div class="cat-chip active"><i class="fas fa-brain"></i> AI & ML</div>
+            <div class="cat-chip"><i class="fas fa-code"></i> Programming</div>
+            <div class="cat-chip"><i class="fas fa-briefcase"></i> Business</div>
+            <div class="cat-chip"><i class="fas fa-language"></i> Languages</div>
+            <div class="cat-chip"><i class="fas fa-flask"></i> Science</div>
+            <div class="cat-chip"><i class="fas fa-calculator"></i> Math</div>
+            <div class="cat-chip"><i class="fas fa-users"></i> Soft Skills</div>
+            <div class="cat-chip"><i class="fas fa-university"></i> University</div>
+          </div>
+
+          <!-- Featured Courses -->
+          <div class="section-header">
+            <div class="section-title">🔥 Featured Courses</div>
+            <a class="section-link" onclick="showPage('courses', document.querySelectorAll('.nav-item')[1])">View all →</a>
+          </div>
+          <div class="course-grid">
+            <div class="course-card">
+              <div class="course-thumb" style="background:linear-gradient(135deg,#EEF2FF,#E7F5FF)">🤖<span class="course-badge">HOT</span></div>
+              <div class="course-body">
+                <div class="course-cat">AI & ML</div>
+                <div class="course-title">Introduction to Machine Learning</div>
+                <div class="course-teacher">Dr. Sarah Chen</div>
+                <div class="course-meta"><span class="course-rating">★ 4.9</span><span>24h</span><span>3.2k students</span></div>
+                <div class="course-sponsor-tag"><i class="fas fa-star"></i> Sponsored by TechCorp</div>
+              </div>
+            </div>
+            <div class="course-card">
+              <div class="course-thumb" style="background:linear-gradient(135deg,#F3F0FF,#EEF2FF)">🐍<span class="course-badge free">FREE</span></div>
+              <div class="course-body">
+                <div class="course-cat">Programming</div>
+                <div class="course-title">Python for Beginners</div>
+                <div class="course-teacher">James Miller</div>
+                <div class="course-meta"><span class="course-rating">★ 4.8</span><span>18h</span><span>5.1k students</span></div>
+              </div>
+            </div>
+            <div class="course-card">
+              <div class="course-thumb" style="background:linear-gradient(135deg,#E6FCF5,#EBFBEE)">💼<span class="course-badge">HOT</span></div>
+              <div class="course-body">
+                <div class="course-cat">Business</div>
+                <div class="course-title">Digital Marketing Masterclass</div>
+                <div class="course-teacher">Anna Kovacs</div>
+                <div class="course-meta"><span class="course-rating">★ 4.7</span><span>30h</span><span>2.4k students</span></div>
+                <div class="course-sponsor-tag"><i class="fas fa-star"></i> Sponsored by BizHub</div>
+              </div>
+            </div>
+            <div class="course-card">
+              <div class="course-thumb" style="background:linear-gradient(135deg,#FFF9DB,#FFF3BF)">🇩🇪<span class="course-badge free">FREE</span></div>
+              <div class="course-body">
+                <div class="course-cat">Languages</div>
+                <div class="course-title">German A1 to B2 Complete</div>
+                <div class="course-teacher">Klaus Wagner</div>
+                <div class="course-meta"><span class="course-rating">★ 4.9</span><span>45h</span><span>1.8k students</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Testimonials -->
+          <div class="section-header"><div class="section-title">💬 What Students Say</div></div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-bottom:28px;">
+            <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:20px;">
+              <div style="font-size:20px;margin-bottom:8px;">⭐⭐⭐⭐⭐</div>
+              <div style="font-size:14px;line-height:1.6;margin-bottom:12px;color:var(--text);">"LearnED changed my life. I got a scholarship through the platform and now study at a top university!"</div>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:13px;">A</div>
+                <div><div style="font-weight:700;font-size:13px;">Aisha M.</div><div style="font-size:11px;color:var(--text-muted);">Lagos, Nigeria</div></div>
+              </div>
+            </div>
+            <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:20px;">
+              <div style="font-size:20px;margin-bottom:8px;">⭐⭐⭐⭐⭐</div>
+              <div style="font-size:14px;line-height:1.6;margin-bottom:12px;color:var(--text);">"The AI assistant explains things better than most teachers. I finished Python in 2 weeks!"</div>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:13px;">K</div>
+                <div><div style="font-weight:700;font-size:13px;">Kaito Y.</div><div style="font-size:11px;color:var(--text-muted);">Tokyo, Japan</div></div>
+              </div>
+            </div>
+            <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:20px;">
+              <div style="font-size:20px;margin-bottom:8px;">⭐⭐⭐⭐⭐</div>
+              <div style="font-size:14px;line-height:1.6;margin-bottom:12px;color:var(--text);">"Free courses with real certificates. I found my internship here. Absolutely recommend!"</div>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#FF922B);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:13px;">M</div>
+                <div><div style="font-weight:700;font-size:13px;">Maria S.</div><div style="font-size:11px;color:var(--text-muted);">Vilnius, Lithuania</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="footer">
+            <div><div class="footer-logo">LearnED</div><div>© 2025 LearnED. Education for Everyone.</div></div>
+            <div style="display:flex;gap:18px;font-size:13px;">
+              <a style="color:rgba(255,255,255,0.6);text-decoration:none;">About</a>
+              <a style="color:rgba(255,255,255,0.6);text-decoration:none;">For Sponsors</a>
+              <a style="color:rgba(255,255,255,0.6);text-decoration:none;">Privacy</a>
+              <a style="color:rgba(255,255,255,0.6);text-decoration:none;">Contact</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- ════════ COURSES PAGE ════════ -->
+        <div class="page" id="page-courses">
+          <div class="page-title">📚 All Courses</div>
+          <div class="page-sub">340+ free courses across 8 categories</div>
+          <div class="filter-bar">
+            <select class="filter-select"><option>All Categories</option><option>AI & ML</option><option>Programming</option><option>Business</option><option>Languages</option></select>
+            <select class="filter-select"><option>Any Level</option><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select>
+            <select class="filter-select"><option>Sort: Popular</option><option>Newest</option><option>Rating</option></select>
+            <select class="filter-select"><option>All Types</option><option>Free</option><option>Sponsored</option></select>
+          </div>
+          <div class="category-row">
+            <div class="cat-chip active"><i class="fas fa-th"></i> All</div>
+            <div class="cat-chip"><i class="fas fa-brain"></i> AI & ML</div>
+            <div class="cat-chip"><i class="fas fa-code"></i> Programming</div>
+            <div class="cat-chip"><i class="fas fa-briefcase"></i> Business</div>
+            <div class="cat-chip"><i class="fas fa-language"></i> Languages</div>
+            <div class="cat-chip"><i class="fas fa-flask"></i> Science</div>
+          </div>
+          <div class="course-grid">
+            <div class="course-card"><div class="course-thumb" style="background:linear-gradient(135deg,#EEF2FF,#E7F5FF)">🤖<span class="course-badge">HOT</span></div><div class="course-body"><div class="course-cat">AI & ML</div><div class="course-title">Introduction to Machine Learning</div><div class="course-teacher">Dr. Sarah Chen</div><div class="course-meta"><span class="course-rating">★ 4.9</span><span>24h</span></div></div></div>
+            <div class="course-card"><div class="course-thumb" style="background:linear-gradient(135deg,#F3F0FF,#EEF2FF)">🐍<span class="course-badge free">FREE</span></div><div class="course-body"><div class="course-cat">Programming</div><div class="course-title">Python for Beginners</div><div class="course-teacher">James Miller</div><div class="course-meta"><span class="course-rating">★ 4.8</span><span>18h</span></div></div></div>
+            <div class="course-card"><div class="course-thumb" style="background:linear-gradient(135deg,#E6FCF5,#EBFBEE)">🌐<span class="course-badge free">FREE</span></div><div class="course-body"><div class="course-cat">Programming</div><div class="course-title">Web Dev: HTML, CSS & JS</div><div class="course-teacher">Lisa Park</div><div class="course-meta"><span class="course-rating">★ 4.7</span><span>32h</span></div></div></div>
+            <div class="course-card"><div class="course-thumb" style="background:linear-gradient(135deg,#FFF9DB,#FFF3BF)">🇩🇪</div><div class="course-body"><div class="course-cat">Languages</div><div class="course-title">German A1 to B2 Complete</div><div class="course-teacher">Klaus Wagner</div><div class="course-meta"><span class="course-rating">★ 4.9</span><span>45h</span></div></div></div>
+            <div class="course-card"><div class="course-thumb" style="background:linear-gradient(135deg,#FFE3E3,#FFF5F5)">📊<span class="course-badge">HOT</span></div><div class="course-body"><div class="course-cat">Business</div><div class="course-title">Data Analysis with Excel</div><div class="course-teacher">Tom Harris</div><div class="course-meta"><span class="course-rating">★ 4.6</span><span>16h</span></div></div></div>
+            <div class="course-card"><div class="course-thumb" style="background:linear-gradient(135deg,#E3FAFC,#C5F6FA)">🧠<span class="course-badge free">FREE</span></div><div class="course-body"><div class="course-cat">AI & ML</div><div class="course-title">Deep Learning with PyTorch</div><div class="course-teacher">Yuki Tanaka</div><div class="course-meta"><span class="course-rating">★ 4.8</span><span>40h</span></div></div></div>
+          </div>
+        </div>
+
+        <!-- ════════ MY LEARNING PAGE ════════ -->
+        <div class="page" id="page-mylearning">
+          <div class="page-title">🎓 My Learning</div>
+          <div class="page-sub">Track your progress, download certificates</div>
+          <div class="stat-row">
+            <div class="stat-box"><div class="stat-icon" style="background:#EEF2FF">📚</div><div><div class="stat-num">3</div><div class="stat-label">Active Courses</div></div></div>
+            <div class="stat-box"><div class="stat-icon" style="background:#EBFBEE">✅</div><div><div class="stat-num">2</div><div class="stat-label">Completed</div></div></div>
+            <div class="stat-box"><div class="stat-icon" style="background:#FFF9DB">🏆</div><div><div class="stat-num">2</div><div class="stat-label">Certificates</div></div></div>
+            <div class="stat-box"><div class="stat-icon" style="background:#F3F0FF">⏱</div><div><div class="stat-num">47h</div><div class="stat-label">Total Learning</div></div></div>
+          </div>
+
+          <div class="section-header"><div class="section-title">In Progress</div></div>
+          <div class="progress-card">
+            <div class="progress-thumb">🤖</div>
+            <div class="progress-info">
+              <div class="progress-course-name">Introduction to Machine Learning</div>
+              <div class="progress-teacher">Dr. Sarah Chen · AI & ML</div>
+              <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:68%"></div></div>
+              <div class="progress-pct">68% complete · Lesson 17 of 25</div>
+            </div>
+            <div class="progress-actions">
+              <button class="btn btn-primary" style="font-size:12px;padding:9px 16px;">▶ Continue</button>
+            </div>
+          </div>
+          <div class="progress-card">
+            <div class="progress-thumb">🐍</div>
+            <div class="progress-info">
+              <div class="progress-course-name">Python for Beginners</div>
+              <div class="progress-teacher">James Miller · Programming</div>
+              <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:35%"></div></div>
+              <div class="progress-pct">35% complete · Lesson 8 of 22</div>
+            </div>
+            <div class="progress-actions">
+              <button class="btn btn-primary" style="font-size:12px;padding:9px 16px;">▶ Continue</button>
+            </div>
+          </div>
+
+          <div class="section-header" style="margin-top:24px;"><div class="section-title">🏆 My Certificates</div></div>
+          <div class="cert-grid">
+            <div class="cert-card">
+              <div class="cert-icon">🌐</div>
+              <div class="cert-course">Web Dev: HTML, CSS & JS</div>
+              <div class="cert-date">Completed: March 12, 2025</div>
+              <button class="btn-cert"><i class="fas fa-download"></i> Download PDF</button>
+            </div>
+            <div class="cert-card">
+              <div class="cert-icon">💼</div>
+              <div class="cert-course">Digital Marketing Masterclass</div>
+              <div class="cert-date">Completed: January 28, 2025</div>
+              <button class="btn-cert"><i class="fas fa-download"></i> Download PDF</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ════════ AI PAGE ════════ -->
+        <div class="page" id="page-ai">
+          <div class="ai-header">
+            <div class="ai-icon-big">🤖</div>
+            <div>
+              <h2>LearnED AI Assistant</h2>
+              <p>Ask anything — explain topics, generate quizzes, summarize notes, translate content</p>
+            </div>
+          </div>
+          <div class="ai-chips">
+            <div class="ai-chip" onclick="sendAIChip(this)">💡 Explain a concept</div>
+            <div class="ai-chip" onclick="sendAIChip(this)">📝 Generate a quiz</div>
+            <div class="ai-chip" onclick="sendAIChip(this)">📋 Summarize my notes</div>
+            <div class="ai-chip" onclick="sendAIChip(this)">🌍 Translate content</div>
+            <div class="ai-chip" onclick="sendAIChip(this)">🐛 Debug my code</div>
+            <div class="ai-chip" onclick="sendAIChip(this)">📚 Study plan</div>
+          </div>
+          <div class="ai-chat">
+            <div class="ai-messages" id="ai-messages">
+              <div class="ai-msg bot">
+                <div class="ai-msg-avatar bot">🤖</div>
+                <div class="ai-msg-bubble">Hi! I'm your LearnED AI tutor. Ask me anything — explain topics, generate quizzes, summarize notes, or help with code. What would you like to learn today?</div>
+              </div>
+            </div>
+            <div class="ai-input-row">
+              <input class="ai-input" id="ai-input" placeholder="Ask AI anything..." onkeydown="if(event.key==='Enter')sendAI()">
+              <button class="ai-send" onclick="sendAI()"><i class="fas fa-paper-plane"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ════════ QUIZ PAGE ════════ -->
+        <div class="page" id="page-quiz">
+          <div class="page-title">🧩 Quiz Zone</div>
+          <div class="page-sub">Test your knowledge with AI-generated questions</div>
+          <div class="stat-row">
+            <div class="stat-box"><div class="stat-icon" style="background:#EEF2FF">🏅</div><div><div class="stat-num">87%</div><div class="stat-label">Best Score</div></div></div>
+            <div class="stat-box"><div class="stat-icon" style="background:#EBFBEE">✅</div><div><div class="stat-num">24</div><div class="stat-label">Quizzes Done</div></div></div>
+            <div class="stat-box"><div class="stat-icon" style="background:#FFF9DB">🔥</div><div><div class="stat-num">7</div><div class="stat-label">Day Streak</div></div></div>
+            <div class="stat-box"><div class="stat-icon" style="background:#F3F0FF">⭐</div><div><div class="stat-num">#12</div><div class="stat-label">Leaderboard</div></div></div>
+          </div>
+          <div class="quiz-card">
+            <div class="quiz-timer"><i class="fas fa-clock"></i> <span id="quiz-time">02:00</span></div>
+            <div class="quiz-num">Question 1 of 5 · AI & ML</div>
+            <div class="quiz-question">What does CNN stand for in Machine Learning?</div>
+            <div class="quiz-options">
+              <div class="quiz-option" onclick="answerQuiz(this, false)">A) Computer Neural Node</div>
+              <div class="quiz-option" onclick="answerQuiz(this, true)">B) Convolutional Neural Network</div>
+              <div class="quiz-option" onclick="answerQuiz(this, false)">C) Connected Node Network</div>
+              <div class="quiz-option" onclick="answerQuiz(this, false)">D) Core Node Normalization</div>
+            </div>
+            <button class="btn btn-primary" id="next-btn" style="display:none;" onclick="nextQuestion()">Next Question →</button>
+          </div>
+          <div class="leaderboard">
+            <div class="leaderboard-header">🏆 Today's Leaderboard</div>
+            <div class="lb-row"><div class="lb-rank gold">1</div><div class="lb-avatar">👑</div><div class="lb-name">Ali Hassan</div><div class="lb-score">980 pts</div></div>
+            <div class="lb-row"><div class="lb-rank silver">2</div><div class="lb-avatar">🎯</div><div class="lb-name">Yuki Tanaka</div><div class="lb-score">920 pts</div></div>
+            <div class="lb-row"><div class="lb-rank bronze">3</div><div class="lb-avatar">⚡</div><div class="lb-name">Maria Santos</div><div class="lb-score">875 pts</div></div>
+            <div class="lb-row"><div class="lb-rank">4</div><div class="lb-avatar">📚</div><div class="lb-name">You (Alex)</div><div class="lb-score">820 pts</div></div>
+            <div class="lb-row"><div class="lb-rank">5</div><div class="lb-avatar">🌟</div><div class="lb-name">Emma Wilson</div><div class="lb-score">790 pts</div></div>
+          </div>
+        </div>
+
+        <!-- ════════ SPONSORS PAGE ════════ -->
+        <div class="page" id="page-sponsors">
+          <div class="page-title">🤝 Our Sponsors</div>
+          <div class="page-sub">Companies and institutions that make free learning possible</div>
+          <div style="background:linear-gradient(135deg,var(--primary),var(--accent));border-radius:16px;padding:28px;color:white;margin-bottom:28px;">
+            <div style="font-size:12px;opacity:0.75;margin-bottom:6px;">FOR ORGANIZATIONS</div>
+            <div style="font-family:'Sora',sans-serif;font-size:20px;font-weight:800;margin-bottom:8px;">Become a LearnED Sponsor</div>
+            <div style="font-size:14px;opacity:0.85;margin-bottom:18px;">Reach 12,000+ students. Fund scholarships. Promote your brand on a modern learning platform.</div>
+            <button class="btn btn-white">Get in Touch →</button>
+          </div>
+          <div class="section-header"><div class="section-title">⭐ Premium Sponsors</div></div>
+          <div class="sponsor-grid-main" style="margin-bottom:28px;">
+            <div class="sponsor-main-card"><div class="sponsor-main-logo">🏛</div><div class="sponsor-main-name">Oxford Online</div><div class="sponsor-main-type">University</div><div class="sponsor-main-badge premium">Premium Partner</div></div>
+            <div class="sponsor-main-card"><div class="sponsor-main-logo">💻</div><div class="sponsor-main-name">TechCorp</div><div class="sponsor-main-type">Technology Company</div><div class="sponsor-main-badge premium">Premium Partner</div></div>
+            <div class="sponsor-main-card"><div class="sponsor-main-logo">🌍</div><div class="sponsor-main-name">Global Learn NGO</div><div class="sponsor-main-type">Non-Profit</div><div class="sponsor-main-badge partner">Partner</div></div>
+            <div class="sponsor-main-card"><div class="sponsor-main-logo">🗣</div><div class="sponsor-main-name">LinguaSchool</div><div class="sponsor-main-type">Language Institute</div><div class="sponsor-main-badge partner">Partner</div></div>
+          </div>
+        </div>
+
+        <!-- ════════ SCHOLARSHIPS PAGE ════════ -->
+        <div class="page" id="page-scholarships">
+          <div class="page-title">🏆 Scholarships & Opportunities</div>
+          <div class="page-sub">Funded by our sponsor network — apply directly through LearnED</div>
+          <div class="scholarship-grid">
+            <div class="schol-card"><div class="schol-logo">🏛</div><div class="schol-title">Oxford Digital Skills Grant</div><div class="schol-org">Oxford Online · University Program</div><div class="schol-tags"><span class="schol-tag funded">Fully Funded</span><span class="schol-tag deadline">Deadline: Apr 30</span><span class="schol-tag type">Online</span></div><button class="btn btn-primary" style="font-size:13px;padding:10px 20px;">Apply Now</button></div>
+            <div class="schol-card"><div class="schol-logo">💻</div><div class="schol-title">TechCorp Future Engineers</div><div class="schol-org">TechCorp · Internship Track</div><div class="schol-tags"><span class="schol-tag funded">Paid Internship</span><span class="schol-tag deadline">Deadline: May 15</span><span class="schol-tag type">Remote</span></div><button class="btn btn-primary" style="font-size:13px;padding:10px 20px;">Apply Now</button></div>
+            <div class="schol-card"><div class="schol-logo">🌍</div><div class="schol-title">Global Learn Scholarship</div><div class="schol-org">Global Learn NGO · Exchange</div><div class="schol-tags"><span class="schol-tag funded">Fully Funded</span><span class="schol-tag deadline">Deadline: Jun 1</span><span class="schol-tag type">Exchange Program</span></div><button class="btn btn-primary" style="font-size:13px;padding:10px 20px;">Apply Now</button></div>
+            <div class="schol-card"><div class="schol-logo">🗣</div><div class="schol-title">LinguaSchool Language Award</div><div class="schol-org">LinguaSchool · Language Course</div><div class="schol-tags"><span class="schol-tag funded">Free Course</span><span class="schol-tag deadline">Ongoing</span><span class="schol-tag type">Online</span></div><button class="btn btn-primary" style="font-size:13px;padding:10px 20px;">Apply Now</button></div>
+          </div>
+        </div>
+
+        <!-- ════════ PROFILE PAGE ════════ -->
+        <div class="page" id="page-profile">
+          <div class="profile-header">
+            <div class="profile-avatar-big">A</div>
+            <div>
+              <div class="profile-name">Alex Student</div>
+              <div class="profile-sub">alex@learnED.com · Member since Jan 2025</div>
+              <div class="profile-stats">
+                <div><div class="profile-stat-num">3</div><div class="profile-stat-label">Active Courses</div></div>
+                <div><div class="profile-stat-num">2</div><div class="profile-stat-label">Certificates</div></div>
+                <div><div class="profile-stat-num">47h</div><div class="profile-stat-label">Learned</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <div class="section-title" style="margin-bottom:14px;">⚙️ Settings</div>
+            <div class="settings-row">
+              <div><div class="settings-label">Email Notifications</div><div class="settings-sublabel">Get updates on new courses</div></div>
+              <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div class="settings-row">
+              <div><div class="settings-label">Dark Mode</div><div class="settings-sublabel">Switch to dark theme</div></div>
+              <div class="toggle" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div class="settings-row">
+              <div><div class="settings-label">AI Suggestions</div><div class="settings-sublabel">Personalized course recommendations</div></div>
+              <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div class="settings-row">
+              <div><div class="settings-label">Scholarship Alerts</div><div class="settings-sublabel">Notify me about new scholarships</div></div>
+              <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /page-content -->
+
+      <!-- ─── SPONSOR PANEL ────────────────────── -->
+      <aside id="sponsor-panel">
+        <div class="sponsor-panel-title">Sponsors</div>
+
+        <div class="sponsor-ad">
+          <div class="sponsor-ad-label">FEATURED SPONSOR</div>
+          <div class="sponsor-ad-title">🏛 Oxford Online</div>
+          <div class="sponsor-ad-sub">Apply for a fully funded digital skills scholarship</div>
+          <button class="btn-ad">Apply Now →</button>
+        </div>
+
+        <div class="sponsor-card">
+          <div class="sponsor-logo-big">💻</div>
+          <div class="sponsor-card-name">TechCorp</div>
+          <div class="sponsor-card-desc">Internships for top LearnED students in software engineering</div>
+        </div>
+
+        <div class="scholarship-card">
+          <div class="scholarship-card-title">🏆 New Scholarship</div>
+          <div class="scholarship-card-desc">Global Learn NGO: Fully funded exchange program. Deadline June 1</div>
+          <button class="btn-scholarship">View Details</button>
+        </div>
+
+        <div class="sponsor-card">
+          <div class="sponsor-logo-big">🗣</div>
+          <div class="sponsor-card-name">LinguaSchool</div>
+          <div class="sponsor-card-desc">Free language courses for all LearnED members</div>
+        </div>
+      </aside>
+
+    </div><!-- /content-area -->
+  </div><!-- /main-content -->
+
+</div><!-- /app -->
+
+<script>
+  // ── Page Navigation ───────────────────────────
+  function showPage(pageId, el) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + pageId).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    if (el && el.classList) el.classList.add('active');
+  }
+
+  // ── Sidebar Toggle ────────────────────────────
+  function toggleSidebar() {
+    const s = document.getElementById('sidebar');
+    const m = document.getElementById('main-content');
+    s.classList.toggle('collapsed');
+    m.classList.toggle('expanded');
+  }
+
+  // ── Category Chips ────────────────────────────
+  document.querySelectorAll('.cat-chip').forEach(chip => {
+    chip.addEventListener('click', function() {
+      this.closest('.category-row').querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+
+  // ── AI Chat ───────────────────────────────────
+  const aiReplies = [
+    "Great question! A **Convolutional Neural Network (CNN)** is a type of deep learning model used primarily for image recognition. It uses layers of filters to detect patterns like edges and shapes.",
+    "Sure! Here's a quick quiz: Q1) What is the output of a sigmoid function? A) -1 to 1  B) 0 to 1  C) 0 to ∞  D) -∞ to +∞. The answer is B — sigmoid outputs values between 0 and 1.",
+    "I can summarize your Python notes: Python is a high-level, interpreted language. Key concepts: variables, loops, functions, lists, dictionaries, and object-oriented programming.",
+    "Here's your study plan for Machine Learning: Week 1 — Math foundations (Linear Algebra, Calculus). Week 2 — Python basics. Week 3 — Supervised learning. Week 4 — Neural networks. 🚀",
+    "The difference between supervised and unsupervised learning: Supervised uses labeled data to train models. Unsupervised finds hidden patterns in unlabeled data. Examples: supervised → image classification; unsupervised → clustering.",
+  ];
+  let aiIdx = 0;
+
+  function sendAI() {
+    const input = document.getElementById('ai-input');
+    const msg = input.value.trim();
+    if (!msg) return;
+    appendMsg(msg, 'user');
+    input.value = '';
+    setTimeout(() => {
+      appendMsg(aiReplies[aiIdx % aiReplies.length], 'bot');
+      aiIdx++;
+    }, 700);
+  }
+
+  function sendAIChip(el) {
+    document.getElementById('ai-input').value = el.textContent.replace(/^[^\w]+/, '').trim();
+    sendAI();
+  }
+
+  function appendMsg(text, type) {
+    const msgs = document.getElementById('ai-messages');
+    const div = document.createElement('div');
+    div.className = 'ai-msg ' + type;
+    div.innerHTML = `
+      <div class="ai-msg-avatar ${type === 'bot' ? 'bot' : 'human'}">${type === 'bot' ? '🤖' : 'A'}</div>
+      <div class="ai-msg-bubble">${text}</div>`;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  // ── Quiz ──────────────────────────────────────
+  function answerQuiz(el, correct) {
+    document.querySelectorAll('.quiz-option').forEach(o => {
+      o.style.pointerEvents = 'none';
+      o.style.opacity = '0.7';
+    });
+    el.style.opacity = '1';
+    el.classList.add(correct ? 'correct' : 'wrong');
+    if (!correct) {
+      document.querySelectorAll('.quiz-option')[1].classList.add('correct');
+    }
+    document.getElementById('next-btn').style.display = 'inline-flex';
+  }
+
+  function nextQuestion() {
+    document.querySelectorAll('.quiz-option').forEach(o => {
+      o.classList.remove('correct', 'wrong');
+      o.style.pointerEvents = '';
+      o.style.opacity = '1';
+    });
+    document.getElementById('next-btn').style.display = 'none';
+    document.querySelector('.quiz-question').textContent = 'What is overfitting in Machine Learning?';
+    document.querySelector('.quiz-num').textContent = 'Question 2 of 5 · AI & ML';
+    document.querySelectorAll('.quiz-option')[0].textContent = 'A) When a model trains too fast';
+    document.querySelectorAll('.quiz-option')[1].textContent = 'B) When a model performs well on test data only';
+    document.querySelectorAll('.quiz-option')[2].textContent = 'C) When a model memorizes training data but fails on new data';
+    document.querySelectorAll('.quiz-option')[3].textContent = 'D) When training data is too large';
+    document.querySelectorAll('.quiz-option').forEach((o, i) => {
+      o.onclick = () => answerQuiz(o, i === 2);
+    });
+  }
+
+  // ── Quiz Timer ────────────────────────────────
+  let quizSecs = 120;
+  const timerEl = document.getElementById('quiz-time');
+  setInterval(() => {
+    if (quizSecs > 0) quizSecs--;
+    const m = String(Math.floor(quizSecs / 60)).padStart(2, '0');
+    const s = String(quizSecs % 60).padStart(2, '0');
+    if (timerEl) timerEl.textContent = m + ':' + s;
+  }, 1000);
+</script>
+</body>
+</html>
